@@ -2,6 +2,7 @@
 #![allow(unused_variables)]
 
 use std::io;
+use std::fmt::Write;
 use termion::raw::IntoRawMode;
 use tui::{Terminal, backend};
 use termion::event::Key;
@@ -18,7 +19,8 @@ fn main() -> Result<(), io::Error>{
     let mut terminal = Terminal::new(backend)?;
 
     let mut input = InputHandler::AsyncIO::new();
-    
+    let mut errorLog = String::new();
+
     terminal.clear()?;
 
     let mut matrix = MatrixWidget::MatrixWidget::new(terminal.size()?);
@@ -31,7 +33,17 @@ fn main() -> Result<(), io::Error>{
             Key::Char('q') => exitLoop = true,
             _ => ()
         }
-    
+        
+        {
+            let os = terminal.size()?;
+            terminal.autoresize()?;
+            let ns = terminal.size()?;
+
+            if os.width != ns.width || os.height != ns.height {
+                writeln!(errorLog, "Screen Resized: Old Size: {} {}, New Size; {} {}", os.width, os.height, ns.width, ns.height);
+            }
+        }
+
         terminal.draw(|f| {
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
@@ -51,6 +63,7 @@ fn main() -> Result<(), io::Error>{
     }
     
     terminal.clear()?;
+    println!("{}", errorLog);
 
     Ok(())
 }
