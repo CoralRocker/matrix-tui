@@ -8,6 +8,7 @@ use tui::{Terminal, backend};
 use termion::event::Key;
 use tui::layout::*;
 use std::{time, thread};
+use tui::widgets::*;
 
 use matrix::InputHandler;
 use matrix::MatrixWidget;
@@ -57,6 +58,10 @@ fn main() -> Result<(), io::Error>{
             }else{
                 [ Constraint::Percentage(100), Constraint::Percentage(0) ]
             };
+            
+            let block = Block::default()
+                .title("Test Block")
+                .borders(Borders::ALL);
 
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
@@ -66,7 +71,7 @@ fn main() -> Result<(), io::Error>{
                     )
                 .split(f.size());
             f.render_widget(matrix.clone(), chunks[0]);
-
+            f.render_widget(block, chunks[1]);
         })?;
         matrix.age();
         matrix.populate();
@@ -74,6 +79,9 @@ fn main() -> Result<(), io::Error>{
     }
     
     terminal.clear()?;
+    
+    
+
     println!("{}", errorLog);
 
     Ok(())
