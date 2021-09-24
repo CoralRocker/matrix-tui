@@ -52,27 +52,43 @@ pub struct MatrixWidget {
     matrix: Vec<MatrixStream>,
     /// The chance, between 0.0 and 1.0 that for each column on the widget, a stream will fall each
     /// draw loop.
-    fallRate: f64,
+    fall_rate: f64,
+    max_dim: (u16, u16),
 }
 
 impl MatrixWidget {
     pub fn new(size: Rect) -> MatrixWidget {
-        MatrixWidget { matrix: Vec::new(), fallRate: 0.0125, area: size }
+        MatrixWidget { matrix: Vec::new(), fall_rate: 0.0125, area: size, max_dim: (size.width, size.height) }
     }
 
     pub fn populate(&mut self) {
         let mut rng = thread_rng();
         for i in 0..self.area.width {
-            if rng.gen::<f64>() < self.fallRate {
+            if rng.gen::<f64>() < self.fall_rate {
                 self.matrix.push(MatrixStream::new(i as usize));
             }
         }
     }
     
+    pub fn resize(&mut self, new_size: Rect) {
+        if self.area.width < new_size.width {
+            self.max_dim.0 = new_size.width;
+        }
+        if self.area.height < new_size.height {
+            self.max_dim.1 = new_size.height;
+        }
+
+        self.area = new_size; 
+    }
+
     pub fn age(&mut self) {
         for ms in self.matrix.iter_mut(){
             ms.age();
         }
+        let (_, mh) = self.max_dim; 
+        self.matrix.retain(|ms|{
+            (ms.pos.1 as i32 - ms.chars.len() as i32) < mh as i32 // Keep all that return true
+        });
     }
 }
 

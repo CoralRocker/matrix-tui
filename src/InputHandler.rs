@@ -1,7 +1,7 @@
 use std::io;
 use termion::input::{Keys, TermRead};
-use termion::event::{Key, Event};
-use termion::{AsyncReader, async_stdin};
+use termion::event::Key;
+use termion::*; // {AsyncReader, async_stdin};
 
 /** Struct to hold asynchronous IO provided by Termion
  */
